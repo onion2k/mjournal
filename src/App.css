@@ -20,7 +20,6 @@
 body {
   margin: 0;
   min-width: 320px;
-  min-height: 100vh;
 }
 
 button,
@@ -50,12 +49,14 @@ textarea {
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .app-shell {
-  min-height: 100vh;
+  min-height: 100dvh;
   padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .topbar,
@@ -141,18 +142,16 @@ textarea {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
   gap: 1rem;
-  align-items: start;
-}
-
-.sidebar,
-.content {
-  min-height: calc(100vh - 9rem);
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
+  min-height: 100%;
 }
 
 .nav-item,
@@ -220,11 +219,13 @@ textarea {
 
 .content {
   display: flex;
+  min-height: 100%;
 }
 
 .panel {
   width: 100%;
   padding: 1.25rem;
+  height: 100%;
 }
 
 .panel-header,
@@ -720,6 +721,22 @@ textarea {
   border-color: rgba(170, 72, 63, 0.18);
 }
 
+.settings-confirm {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.settings-confirm-copy {
+  margin: 0;
+  color: #8c3f38;
+}
+
+.settings-confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .settings-error {
   margin-top: 1rem;
 }
@@ -855,7 +872,7 @@ textarea {
 
   .sidebar,
   .content {
-    min-height: auto;
+    min-height: 0;
   }
 
   .summary-grid,

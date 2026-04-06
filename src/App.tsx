@@ -70,6 +70,7 @@ function App() {
   const [settingsBusy, setSettingsBusy] = useState<"idle" | "opening" | "resetting">("idle");
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [editorPreference, setEditorPreference] = useState<EditorPreference | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   useEffect(() => {
     void loadJournalData();
@@ -145,6 +146,7 @@ function App() {
     setActiveView(view);
     setLastBrowseView(view);
     setSettingsError(null);
+    setConfirmReset(false);
   }
 
   function openNewMeeting(date: string, sourceView: Exclude<ViewMode, "editor"> = lastBrowseView) {
@@ -191,11 +193,8 @@ function App() {
   }
 
   async function resetJournalData() {
-    const confirmed = window.confirm(
-      "Reset all journal data? This will clear every stored meeting entry.",
-    );
-
-    if (!confirmed) {
+    if (!confirmReset) {
+      setConfirmReset(true);
       return;
     }
 
@@ -207,6 +206,7 @@ function App() {
       setDraft(null);
       setOriginalDraft(null);
       setStatusMessage("Journal data reset");
+      setConfirmReset(false);
     } catch (error) {
       setSettingsError(getErrorMessage(error));
     } finally {
@@ -373,8 +373,10 @@ function App() {
               settingsBusy={settingsBusy}
               settingsError={settingsError}
               editorPreference={editorPreference}
+              confirmReset={confirmReset}
               onOpenJournalFile={() => void openJournalFile()}
               onResetJournal={() => void resetJournalData()}
+              onCancelReset={() => setConfirmReset(false)}
             />
           ) : activeView === "trends" ? (
             <TrendView
@@ -415,14 +417,18 @@ function SettingsView({
   settingsBusy,
   settingsError,
   editorPreference,
+  confirmReset,
   onOpenJournalFile,
   onResetJournal,
+  onCancelReset,
 }: {
   settingsBusy: "idle" | "opening" | "resetting";
   settingsError: string | null;
   editorPreference: EditorPreference | null;
+  confirmReset: boolean;
   onOpenJournalFile: () => void;
   onResetJournal: () => void;
+  onCancelReset: () => void;
 }) {
   return (
     <section className="panel">
@@ -466,13 +472,37 @@ function SettingsView({
           <p className="muted">
             Remove all meeting entries and return the app to a fresh state. This cannot be undone.
           </p>
-          <button
-            className="danger-button"
-            onClick={onResetJournal}
-            disabled={settingsBusy !== "idle"}
-          >
-            {settingsBusy === "resetting" ? "Resetting..." : "Reset all data"}
-          </button>
+          {confirmReset ? (
+            <div className="settings-confirm">
+              <p className="settings-confirm-copy">
+                Click confirm to permanently delete all meeting entries.
+              </p>
+              <div className="settings-confirm-actions">
+                <button
+                  className="danger-button"
+                  onClick={onResetJournal}
+                  disabled={settingsBusy !== "idle"}
+                >
+                  {settingsBusy === "resetting" ? "Resetting..." : "Confirm reset"}
+                </button>
+                <button
+                  className="secondary-button"
+                  onClick={onCancelReset}
+                  disabled={settingsBusy !== "idle"}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              className="danger-button"
+              onClick={onResetJournal}
+              disabled={settingsBusy !== "idle"}
+            >
+              Reset all data
+            </button>
+          )}
         </section>
       </div>
 
